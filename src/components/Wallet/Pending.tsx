@@ -1,10 +1,10 @@
-import { Button, Typography, makeStyles, Theme } from '@material-ui/core';
-import { Box } from '@material-ui/core';
-import { AbstractConnector } from '@web3-react/abstract-connector';
 import React, { FC } from 'react';
+import { Button, Typography, makeStyles, Theme } from '@material-ui/core';
+import { AbstractConnector } from '@web3-react/abstract-connector';
+import { Box } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
-	box: {
+	container: {
 		margin: theme.spacing(2, 0),
 	},
 }));
@@ -12,33 +12,33 @@ const useStyles = makeStyles((theme: Theme) => ({
 type WalletPendingProps = {
 	connector?: AbstractConnector;
 	error?: boolean;
-	setPendingError: (error: boolean) => void;
-	tryActivation: (connector: AbstractConnector) => void;
+	setPendingIssue: (error: boolean) => void;
+	activateConnection: (connector: AbstractConnector) => void;
 };
 
 export const WalletPending: FC<WalletPendingProps> = ({
 	error,
 	connector,
-	setPendingError,
-	tryActivation,
+	setPendingIssue,
+	activateConnection,
 }) => {
-	const { box } = useStyles();
+	const { container } = useStyles();
 	return (
 		<Box>
 			{error ? (
-				<Box className={box}>
+				<Box className={container}>
 					<Typography>Error connecting to Wallet</Typography>
 					<Button
 						onClick={() => {
-							setPendingError(false);
-							connector && tryActivation(connector);
+							setPendingIssue(false);
+							connector && activateConnection(connector);
 						}}
 					>
-						Try again
+						Retry
 					</Button>
 				</Box>
 			) : (
-				<Box className={box}>
+				<Box className={container}>
 					<Typography>Connecting to a wallet</Typography>
 				</Box>
 			)}

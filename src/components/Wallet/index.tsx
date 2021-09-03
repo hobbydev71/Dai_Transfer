@@ -15,7 +15,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector';
 import { SUPPORTED_WALLETS } from 'utils/constant';
 import { isMobile } from 'react-device-detect';
 import { WalletOptions } from 'components/Wallet/Option';
-import { useEagerConnect, useInactiveListener } from 'hooks/useWeb3';
+import { useEagerConnect, setInactiveListener } from 'hooks/useWeb3';
 import { useAppSelector } from 'hooks/useRedux';
 import { shortenAddress } from 'utils';
 import { selectExplorerLink } from 'store/reducers/app';
@@ -58,23 +58,15 @@ const WALLET_VIEWS = {
 
 export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 	const { dialogTitle, dialogContainer, dialogContent, flex } = useStyles();
-
 	const { account, connector, activate, error, active } = useWeb3React();
 	const [wallet, setWallet] = useState<string>(WALLET_VIEWS.ACCOUNT);
 	const [pendingWallet, setPendingWallet] = useState<
 		AbstractConnector | undefined
 	>();
 	const [pendingIssue, setPendingIssue] = useState<boolean>();
-	const [activatingConnector, setActivatingConnector] = useState<any>();
+	const [activeConnector, setActiveConnector] = useState<any>();
 	const explorerLink = useAppSelector(selectExplorerLink);
-
 	const previousAccount = usePrevious(account);
-
-	useEffect(() => {
-		if (activatingConnector && activatingConnector === connector) {
-			setActivatingConnector(undefined);
-		}
-	}, [activatingConnector, connector]);
 
 	useEffect(() => {
 		if (account && !previousAccount && isOpen) {
@@ -88,6 +80,12 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 			setWallet(WALLET_VIEWS.ACCOUNT);
 		}
 	}, [isOpen]);
+
+  useEffect(() => {
+		if (activeConnector && activeConnector === connector) {
+			setActiveConnector(undefined);
+		}
+	}, [activeConnector, connector]);
 
 	const activePrevious = usePrevious(active);
 	const connectorPrevious = usePrevious(connector);
@@ -103,7 +101,7 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 	}, [
 		setWallet,
 		isOpen,
-    activePrevious,
+		activePrevious,
 		connectorPrevious,
 		active,
 		error,
@@ -114,7 +112,7 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 		setWallet(WALLET_VIEWS.OPTIONS);
 	}, []);
 
-	const tryActivation = async (connector: AbstractConnector | undefined) => {
+	const activateConnection = async (connector: AbstractConnector | undefined) => {
 		Object.keys(SUPPORTED_WALLETS).map((key) => {
 			if (connector === SUPPORTED_WALLETS[key].connector) {
 				return SUPPORTED_WALLETS[key].name;
@@ -154,7 +152,7 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 	}
 
 	const isTriedEager = useEagerConnect();
-	useInactiveListener(!isTriedEager || !!activatingConnector);
+	setInactiveListener(!isTriedEager || !!activeConnector);
 
 	const getOptions = () => {
 		let isMetamask: boolean = false;
@@ -174,7 +172,7 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 							onClick={() => {
 								option.connector !== connector &&
 									!option.href &&
-									tryActivation(option.connector);
+									activateConnection(option.connector);
 							}}
 							id={`connect-${key}`}
 							key={key}
@@ -198,11 +196,11 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 						return (
 							<WalletOptions
 								id={`connect-${key}`}
-                color={'#E8831D'}
+								color={'#E8831D'}
 								key={key}
 								header={'Install Metamask'}
 								icon=""
-                subheader=""
+								subheader=""
 								link={'https://metamask.io/'}
 							/>
 						);
@@ -229,7 +227,7 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 						onClick={() => {
 							option.connector === connector
 								? setWallet(WALLET_VIEWS.ACCOUNT)
-								: !option.href && tryActivation(option.connector);
+								: !option.href && activateConnection(option.connector);
 						}}
 						key={key}
 						color={option.color}
@@ -256,7 +254,7 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 						<Box className={flex}>
 							<Typography variant="h5">{shortenAddress(account)}</Typography>
 							<Box>
-                {connector !== injected && (
+								{connector !== injected && (
 									<Button
 										size="small"
 										variant="contained"
@@ -268,7 +266,11 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 										Disconnect
 									</Button>
 								)}
-								<Button size="small" onClick={handleWalletChange} variant="outlined">
+								<Button
+									size="small"
+									onClick={handleWalletChange}
+									variant="outlined"
+								>
 									Change
 								</Button>
 							</Box>
@@ -325,8 +327,8 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 							<WalletPending
 								connector={pendingWallet}
 								error={pendingIssue}
-								setPendingError={setPendingIssue}
-								tryActivation={tryActivation}
+								setPendingIssue={setPendingIssue}
+								activateConnection={activateConnection}
 							/>
 						) : (
 							<>{getOptions()} </>

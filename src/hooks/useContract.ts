@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Contract } from '@ethersproject/contracts';
-import { getContract } from 'utils/contract';
 import { useActiveWeb3React } from './useWeb3';
+import { getContract } from 'utils/contract';
 
 export const useContract = (
 	address: string | undefined,

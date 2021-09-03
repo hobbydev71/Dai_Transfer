@@ -59,9 +59,10 @@ export const TransferForm: FC<TransferFormProps> = ({ balances }) => {
 	const { root, formControl } = useStyles();
 	const { library, account } = useWeb3React();
 	const dispatch = useAppDispatch();
-	const daiBalance = useAppSelector(selectDAIBalance);
+	const dai = useAppSelector(selectDAIBalance);
+  const explorerLink = useAppSelector(selectExplorerLink);
 	const txHash = useAppSelector(selectTxHash);
-	const explorerLink = useAppSelector(selectExplorerLink);
+	
 
 	const formik = useFormik({
 		initialValues: {
@@ -74,7 +75,7 @@ export const TransferForm: FC<TransferFormProps> = ({ balances }) => {
 				formik.setFieldError('amount', 'Amount is required');
 			} else if (!values.address) {
 				formik.setFieldError('address', 'Recipient address is required');
-			} else if (BigNumber.from(values.amount).gte(daiBalance.crypto)) {
+			} else if (BigNumber.from(values.amount).gte(dai.crypto)) {
 				formik.setFieldError('amount', 'Insufficient amount in wallet');
 			} else {
 				dispatch(transferFunds({ library, account, payload: values }));
@@ -93,16 +94,16 @@ export const TransferForm: FC<TransferFormProps> = ({ balances }) => {
 						id="amount"
 						name="amount"
 						label="DAI Amount"
-						helperText={
+						value={formik.values.amount}
+						onChange={formik.handleChange}
+						error={formik.touched.amount && Boolean(formik.errors.amount)}
+            helperText={
 							formik.touched.amount && formik.errors.amount
 								? formik.errors.amount
 								: `Balance: ${formatEther(balances.dai.crypto)} DAI ($ ${
 										balances.dai.fiat
 								  })`
 						}
-						value={formik.values.amount}
-						onChange={formik.handleChange}
-						error={formik.touched.amount && Boolean(formik.errors.amount)}
 					/>
 				</FormControl>
 				<FormControl className={formControl}>

@@ -4,18 +4,18 @@ import { Typography } from '@material-ui/core';
 import grey from '@material-ui/core/colors/grey';
 
 const useStyles = makeStyles((theme: Theme) => ({
-	flex: {
+	flex_div: {
 		display: 'flex',
-		alignItems: 'center'
+		alignItems: 'center',
 	},
-  
-  box: {
+
+	box: {
 		padding: theme.spacing(2),
 		cursor: 'pointer',
 		border: `1px solid ${grey[500]}`,
 		borderRadius: 5,
-		margin: theme.spacing(2, 0)
-	}
+		margin: theme.spacing(2, 0),
+	},
 }));
 
 type WalletOptionsProps = {
@@ -32,12 +32,12 @@ export const WalletOptions: FC<WalletOptionsProps> = ({
 	onClick,
 	id,
 	header,
-	subheader
+	subheader,
 }) => {
-	const { box, flex } = useStyles();
+	const { box, flex_div } = useStyles();
 	return (
 		<Box id={id} onClick={onClick} className={box}>
-			<div className={flex}>
+			<div className={flex_div}>
 				<Typography variant="body1" gutterBottom>
 					{header}
 				</Typography>
