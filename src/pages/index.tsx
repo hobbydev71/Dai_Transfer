@@ -32,7 +32,6 @@ export default function Index() {
 		if (account) {
 			// @ts-ignore
 			dispatch(fetchAppConfig({ chainId }));
-			console.log('asdasd');
 			// @ts-ignore
 			dispatch(fetchBalances({ address: account, library }));
 			// dispatch(fetchBalances({ address: account, library: library }));

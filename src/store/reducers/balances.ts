@@ -83,16 +83,6 @@ export const fetchBalances = createAsyncThunk(
 			}
 		}
 		return cryptoBalance;
-		// return {
-		// 	dai: {
-		// 		crypto: daiBalance,
-		// 		fiat: await round(+formatDaiBalance * daiFiat['usd'])
-		// 	},
-		// 	eth: {
-		// 		crypto: ethBalance,
-		// 		fiat: await round(ethFiat['usd'] * +formatEthBalance)
-		// 	}
-		// };
 	}
 );
 
@@ -113,7 +103,7 @@ export const balanceReducer = createSlice({
 	reducers: {
 		transferFunds: (state, { payload }: PayloadAction<TransferPayload>) => {
 			sendFunds(payload).then(
-				result => (state.txHash = result.transactionHash)
+				result => (console.log(result.transactionHash))
 			);
 		}
 	},
