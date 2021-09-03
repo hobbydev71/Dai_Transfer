@@ -120,17 +120,6 @@ export const TransferForm: FC<TransferFormProps> = ({ balances }) => {
 				</FormControl>
 				<FormControl className={formControl}>
 					<FormControl className={formControl}>
-						{/* <Button
-							disabled={
-								!(formik.isValid && formik.dirty) || formik.isSubmitting
-							}
-							size="medium"
-							variant="contained"
-							color="primary"
-							type="submit"
-						>
-							Send
-						</Button> */}
 						<Button
 							disabled={
 								!(formik.isValid && formik.dirty) || formik.isSubmitting

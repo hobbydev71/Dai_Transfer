@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'store/reducers';
 import { getContract } from 'utils/contract';
-import { BigNumber } from 'ethers';
+import { BigNumber } from "ethers";
 import { erc20 } from 'abis/erc20';
 import { DAI_ADDRESS } from 'utils/constant';
 import { Web3Provider } from '@ethersproject/providers';
-import { formatEther, parseEther } from 'ethers/lib/utils';
+import { formatEther, parseEther } from "ethers/lib/utils";
 
 export type Balance = {
 	eth: {
@@ -40,21 +40,21 @@ const initialState = {
 	data: {
 		eth: {
 			crypto: BigNumber.from(0),
-			fiat: 0,
+			fiat: 0
 		},
 		dai: {
 			crypto: BigNumber.from(0),
-			fiat: 0,
-		},
+			fiat: 0
+		}
 	},
 	loading: 'idle',
-	error: null,
+	error: null
 } as BalanceState;
 
-const fetchRateUSD = async (coin: string) => {
+const fetchUSDRate = async (coin: string) => {
 	const price = await fetch(
 		`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`
-	).then((response) => response.json());
+	).then(response => response.json());
 
 	return price[coin];
 };
@@ -64,30 +64,35 @@ const round = async (amount: number) => amount.toFixed(2);
 export const fetchBalances = createAsyncThunk(
 	'balances/all',
 	async ({ address, library }: any) => {
-		try {
-			const token = getContract(DAI_ADDRESS, erc20.abi, library);
-			const ethBalance = await library.getBalance(address);
-			const ethRate = await fetchRateUSD('ethereum');
-			const daiBalance = await token.balanceOf(address);
-			const daiRate = await fetchRateUSD('dai');
-			const formatEthBalance = +formatEther(ethBalance);
-			const formatDaiBalance = +formatEther(daiBalance);
+		const token = await getContract(DAI_ADDRESS, erc20.abi, library);
+		const ethBalance = await library.getBalance(address);
+		const daiBalance = await token.balanceOf(address);
+		const daiFiat = await fetchUSDRate('dai');
+		const ethFiat = await fetchUSDRate('ethereum');
+		const formatEthBalance = +formatEther(ethBalance);
+		const formatDaiBalance = +formatEther(daiBalance);
 
-			let cryptoBalance: Balance = {
-				dai: {
-					crypto: daiBalance,
-					fiat: await round(+formatDaiBalance * daiRate['usd']),
-				},
-				eth: {
-					crypto: ethBalance,
-					fiat: await round(ethRate['usd'] * +formatEthBalance),
-				},
-			};
-			return cryptoBalance;
-		} catch (error) {
-			console.error('Failed to get contract', error);
-			return null;
+		let cryptoBalance: Balance = {
+			dai: {
+				crypto: daiBalance,
+				fiat: await round(+formatDaiBalance * daiFiat['usd'])
+			},
+			eth: {
+				crypto: ethBalance,
+				fiat: await round(ethFiat['usd'] * +formatEthBalance)
+			}
 		}
+		return cryptoBalance;
+		// return {
+		// 	dai: {
+		// 		crypto: daiBalance,
+		// 		fiat: await round(+formatDaiBalance * daiFiat['usd'])
+		// 	},
+		// 	eth: {
+		// 		crypto: ethBalance,
+		// 		fiat: await round(ethFiat['usd'] * +formatEthBalance)
+		// 	}
+		// };
 	}
 );
 
@@ -98,7 +103,7 @@ const sendFunds = async ({ account, library, payload }: TransferPayload) => {
 		payload.address,
 		parseEther(payload.amount)
 	);
-	const tx = await transaction.wait(2); // wait for confirmation
+	const tx = await transaction.wait(2); // 2 confirmation
 	return tx;
 };
 
@@ -108,14 +113,21 @@ export const balanceReducer = createSlice({
 	reducers: {
 		transferFunds: (state, { payload }: PayloadAction<TransferPayload>) => {
 			sendFunds(payload).then(
-				// (result) => (state.txHash = result.transactionHash)
+				result => (state.txHash = result.transactionHash)
 			);
-		},
+		}
 	},
 	extraReducers: {
 		[fetchBalances.pending.type]: (state, action) => {
 			if (state.loading === 'idle') {
 				state.loading = 'pending';
+				state.txHash = '';
+			}
+		},
+		[fetchBalances.fulfilled.type]: (state, action) => {
+			if (state.loading === 'pending') {
+				state.loading = 'idle';
+				state.data = action.payload;
 				state.txHash = '';
 			}
 		},
@@ -125,15 +137,8 @@ export const balanceReducer = createSlice({
 				state.error = action.error;
 				state.txHash = '';
 			}
-		},
-    [fetchBalances.fulfilled.type]: (state, action) => {
-			if (state.loading === 'pending') {
-				state.loading = 'idle';
-				state.data = action.payload;
-				state.txHash = '';
-			}
-		},
-	},
+		}
+	}
 });
 
 export const selectDAIBalance = (state: RootState) => state.balances.data.dai;
