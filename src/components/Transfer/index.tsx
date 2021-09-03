@@ -28,16 +28,16 @@ type TransferFormProps = {
 };
 
 const useStyles = makeStyles((theme: Theme) => ({
-	root: {
-		flexGrow: 1,
-		display: 'flex',
-		flexDirection: 'column',
-	},
-	textField: {
+  textField: {
 		width: '100%',
 	},
 	formControl: {
 		margin: theme.spacing(1),
+	},
+	root: {
+		flexGrow: 1,
+		display: 'flex',
+		flexDirection: 'column',
 	},
 }));
 
@@ -92,7 +92,7 @@ export const TransferForm: FC<TransferFormProps> = ({ balances }) => {
 						variant="filled"
 						id="amount"
 						name="amount"
-						label="Enter DAI Amount"
+						label="DAI Amount"
 						helperText={
 							formik.touched.amount && formik.errors.amount
 								? formik.errors.amount

@@ -103,11 +103,11 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 	}, [
 		setWallet,
 		isOpen,
+    activePrevious,
+		connectorPrevious,
 		active,
 		error,
 		connector,
-		activePrevious,
-		connectorPrevious,
 	]);
 
 	const handleWalletChange = useCallback(() => {
@@ -127,7 +127,7 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 		connector &&
 			activate(connector, undefined, true).catch((error) => {
 				if (error instanceof UnsupportedChainIdError) {
-					activate(connector); // the connector isn't set, seterror is not working
+					activate(connector); // the connector is not set, seterror is not working
 				} else {
 					setPendingIssue(true);
 				}
@@ -191,26 +191,26 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 
 			// overwrite injected when needed
 			if (option.connector === injected) {
-				// don't show injected if there's no injected provider
+				// Not show injected if provider is not injected
 				// @ts-ignore
 				if (!(window?.web3 || window?.ethereum)) {
 					if (option.name === 'MetaMask') {
 						return (
 							<WalletOptions
 								id={`connect-${key}`}
+                color={'#E8831D'}
 								key={key}
-								color={'#E8831D'}
 								header={'Install Metamask'}
-								subheader=""
-								link={'https://metamask.io/'}
 								icon=""
+                subheader=""
+								link={'https://metamask.io/'}
 							/>
 						);
 					} else {
-						return null; //dont want to return install twice
+						return null; //disable duplicated install
 					}
 				}
-				// don't return metamask if injected provider isn't metamask
+				// Not return metamask if injected provider is not metamask
 				else if (option.name === 'MetaMask' && !isMetamask) {
 					return null;
 				}
@@ -256,13 +256,7 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 						<Box className={flex}>
 							<Typography variant="h5">{shortenAddress(account)}</Typography>
 							<Box>
-								<Button size="small" onClick={handleWalletChange} variant="outlined">
-									Change
-								</Button>
-								{/* <Button size="small" variant="contained" color="secondary">
-									Disconnect
-								</Button> */}
-								{connector !== injected && (
+                {connector !== injected && (
 									<Button
 										size="small"
 										variant="contained"
@@ -274,17 +268,9 @@ export const WalletModal = ({ isOpen, onClose }: WalletModalProps) => {
 										Disconnect
 									</Button>
 								)}
-								{/* {connector !== walletconnect && (active || error) && (
-									<Button
-										size="small"
-										 variant="contained" color="red"
-										onClick={() => {
-											deactivate();
-										}}
-									>
-										Disconnect
-									</Button>
-								)} */}
+								<Button size="small" onClick={handleWalletChange} variant="outlined">
+									Change
+								</Button>
 							</Box>
 						</Box>
 
