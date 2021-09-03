@@ -28,7 +28,7 @@ type TransferFormProps = {
 };
 
 const useStyles = makeStyles((theme: Theme) => ({
-  textField: {
+	textField: {
 		width: '100%',
 	},
 	formControl: {
@@ -60,9 +60,8 @@ export const TransferForm: FC<TransferFormProps> = ({ balances }) => {
 	const { library, account } = useWeb3React();
 	const dispatch = useAppDispatch();
 	const dai = useAppSelector(selectDAIBalance);
-  const explorerLink = useAppSelector(selectExplorerLink);
+	const explorerLink = useAppSelector(selectExplorerLink);
 	const txHash = useAppSelector(selectTxHash);
-	
 
 	const formik = useFormik({
 		initialValues: {
@@ -97,7 +96,7 @@ export const TransferForm: FC<TransferFormProps> = ({ balances }) => {
 						value={formik.values.amount}
 						onChange={formik.handleChange}
 						error={formik.touched.amount && Boolean(formik.errors.amount)}
-            helperText={
+						helperText={
 							formik.touched.amount && formik.errors.amount
 								? formik.errors.amount
 								: `Balance: ${formatEther(balances.dai.crypto)} DAI ($ ${

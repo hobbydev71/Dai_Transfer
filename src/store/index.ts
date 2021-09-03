@@ -6,7 +6,7 @@ import rootReducer, { RootState } from './reducers';
 
 let middleware: any[] = [];
 
-// disable redux logger on production
+// to disable redux logger on production
 if (process.env.NODE_ENV !== 'production') {
 	middleware = [
 		...getDefaultMiddleware({
@@ -25,7 +25,7 @@ if (process.env.NODE_ENV !== 'production') {
 const store = configureStore({
 	reducer: rootReducer,
 	middleware,
-	devTools: process.env.NODE_ENV !== 'production' ? true : false // disable devtools on production
+	devTools: process.env.NODE_ENV !== 'production' ? true : false // to disable devtools on production
 });
 
 export type AppDispatch = typeof store.dispatch;

@@ -47,7 +47,6 @@ export function useEagerConnect() {
 	return tried;
 }
 
-
 // check the which network is injected
 
 export function setInactiveListener(suppress = false) {

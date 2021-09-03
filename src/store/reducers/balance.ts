@@ -51,7 +51,7 @@ const initialState = {
 	error: null,
 } as BalanceState;
 
-const fetchUSDRate = async (coin: string) => {
+const fetchRateUSD = async (coin: string) => {
 	const price = await fetch(
 		`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`
 	).then((response) => response.json());
@@ -67,9 +67,9 @@ export const fetchBalances = createAsyncThunk(
 		try {
 			const token = getContract(DAI_ADDRESS, erc20.abi, library);
 			const ethBalance = await library.getBalance(address);
+			const ethRate = await fetchRateUSD('ethereum');
 			const daiBalance = await token.balanceOf(address);
-			const daiRate = await fetchUSDRate('dai');
-			const ethRate = await fetchUSDRate('ethereum');
+			const daiRate = await fetchRateUSD('dai');
 			const formatEthBalance = +formatEther(ethBalance);
 			const formatDaiBalance = +formatEther(daiBalance);
 
@@ -98,7 +98,8 @@ const sendFunds = async ({ account, library, payload }: TransferPayload) => {
 		payload.address,
 		parseEther(payload.amount)
 	);
-	const tx = await transaction.wait(2); // 2 confirmation
+	const tx = await transaction.wait(2); // wait for confirmation
+  console.log(tx,'sendFunds');
 	return tx;
 };
 
@@ -110,6 +111,7 @@ export const balanceReducer = createSlice({
 			sendFunds(payload).then(
 				(result) => (state.txHash = result.transactionHash)
 			);
+      console.log(state.txHash,'balanceReducer');
 		},
 	},
 	extraReducers: {
@@ -119,17 +121,17 @@ export const balanceReducer = createSlice({
 				state.txHash = '';
 			}
 		},
-		[fetchBalances.fulfilled.type]: (state, action) => {
-			if (state.loading === 'pending') {
-				state.loading = 'idle';
-				state.data = action.payload;
-				state.txHash = '';
-			}
-		},
 		[fetchBalances.rejected.type]: (state, action) => {
 			if (state.loading === 'pending') {
 				state.loading = 'idle';
 				state.error = action.error;
+				state.txHash = '';
+			}
+		},
+    [fetchBalances.fulfilled.type]: (state, action) => {
+			if (state.loading === 'pending') {
+				state.loading = 'idle';
+				state.data = action.payload;
 				state.txHash = '';
 			}
 		},

@@ -4,7 +4,7 @@ import { RootState } from 'store/reducers';
 import { getExplorerLink, getNetworkName } from 'utils/network';
 
 export type AppConfig = {
-	selectedNetwork: string;
+	selectedChain: string;
 	explorerLink: string;
 };
 
@@ -16,7 +16,7 @@ interface IAppInit {
 
 const initialState = {
 	data: {
-		selectedNetwork: '',
+		selectedChain: '',
 		explorerLink: '',
 	},
 	loading: 'idle',
@@ -28,7 +28,7 @@ export const fetchAppConfig = createAsyncThunk(
 	async ({ chainId }: any) => {
 		let appConfig: AppConfig = {
 			explorerLink: await getExplorerLink(chainId || DEFAULT_NETWORK),
-			selectedNetwork: await getNetworkName(chainId || DEFAULT_NETWORK),
+			selectedChain: await getNetworkName(chainId || DEFAULT_NETWORK),
 		};
 
 		return appConfig;
@@ -64,4 +64,4 @@ export const selectApp = (state: RootState) => state.appConfig;
 export const selectExplorerLink = (state: RootState) =>
 	state.appConfig.data.explorerLink;
 export const selectNetwork = (state: RootState) =>
-	state.appConfig.data.selectedNetwork;
+	state.appConfig.data.selectedChain;
